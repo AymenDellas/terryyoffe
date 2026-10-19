@@ -1,6 +1,7 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 
 const copy = JSON.parse((await readFile('data/approved-copy.json', 'utf8')).replace(/^\uFEFF/, ''));
+const testimonials = JSON.parse((await readFile('data/testimonials.json', 'utf8')).replace(/^\uFEFF/, ''));
 const sections = Object.fromEntries(copy.map(section => [section.id, section]));
 const esc = value => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
 const paragraphs = id => sections[id].body.split('\n\n');
@@ -13,14 +14,19 @@ const action = id => `<div class="action-group"><button class="action" type="but
 const [approachFirst, approachSecond] = paragraphs('approach');
 const statement = "Terry's coaching blends strategy with mindset mastery.";
 const proof = paragraphs('proof');
-const [quote, attribution] = proof[2].split('\n');
+const featuredTopics = { steve: proof[1], jillian: 'Communication and public speaking', randi: 'Professional development' };
+const testimonial = (account, featured = false) => `<figure class="testimonial testimonial-${account.id}${featured ? ' testimonial-featured' : ''}" data-testimonial="${account.id}">
+  ${featured ? `<h3>${esc(featuredTopics[account.id])}</h3>` : ''}
+  <blockquote><p>${esc(account.quote)}</p></blockquote>
+  <figcaption>${esc(account.attribution)}</figcaption>
+</figure>`;
 
 const html = `<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0b111d">
+  <meta name="theme-color" content="#090a0e">
   <meta name="description" content="One-to-one coaching with Terry Yoffe pairs practical strategy with mindset work to get at the pattern behind it.">
   <title>Terry Yoffe — Coaching &amp; Mentoring</title>
   <link rel="preload" href="./assets/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -38,7 +44,7 @@ const html = `<!doctype html>
     <section class="hero" aria-labelledby="hero-heading">
       <div class="hero-art" aria-hidden="true"><img src="./assets/unfold.svg" alt="" width="1000" height="1000" fetchpriority="high"></div>
       <div class="frame">
-        <h1 id="hero-heading"><span class="hero-first">Keep pushing through,</span> <span class="hero-question">or look at the <span class="last-pair">pattern underneath?</span></span></h1>
+        <h1 id="hero-heading"><span class="hero-first">Keep pushing through,</span> <span class="hero-question">or look at the <span class="last-pair headline-emphasis">pattern underneath?</span></span></h1>
         <div class="hero-support">${paragraphs('hero').map(p).join('')}</div>
         ${action('hero')}
       </div>
@@ -50,7 +56,7 @@ const html = `<!doctype html>
     <section class="section approach frame" aria-labelledby="approach-heading">
       ${heading('approach')}
       <p class="approach-lead"><strong class="statement">${esc(statement)}</strong> <span class="explanation">${esc(approachFirst.slice(statement.length).trim())}</span></p>
-      <p class="approach-detail">${esc(approachSecond)}</p>
+      <p class="approach-detail">${emphasis(approachSecond, 'shifting a long-standing pattern', 'copy-emphasis')}</p>
     </section>
     <section class="section call frame" aria-labelledby="call-heading">
       ${heading('call')}
@@ -75,11 +81,11 @@ const html = `<!doctype html>
     <section class="section proof frame" aria-labelledby="proof-heading">
       ${heading('proof')}
       <p class="proof-intro">${esc(proof[0])}</p>
-      <figure class="evidence">
-        <h3>${esc(proof[1])}</h3>
-        <blockquote>${esc(quote)}</blockquote>
-        <figcaption>${esc(attribution)}</figcaption>
-      </figure>
+      <div class="featured-testimonials">${testimonials.slice(0,3).map(account => testimonial(account, true)).join('')}</div>
+      <details class="more-testimonials">
+        <summary><span>Show all testimonials (5 more).</span><svg class="disclosure-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M12 5v14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></summary>
+        <div class="additional-testimonials">${testimonials.slice(3).map(account => testimonial(account)).join('')}</div>
+      </details>
       <p class="evidence-support">${esc(proof[3])}</p>
     </section>
     <section class="section objections frame" aria-labelledby="objections-heading">

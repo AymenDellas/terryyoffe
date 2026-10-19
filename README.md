@@ -16,6 +16,8 @@ The brief did not supply an approved booking URL. Put it in `dist/config.js` as 
 
 ## Editing
 
-`data/approved-copy.json` retains the exact approved copy. `scripts/build.mjs` generates the HTML and original artwork. Styles are in `dist/styles.css`; consultation behavior is in `dist/main.js`. Rebuilding preserves the CSS, configuration, fonts, photograph and behavior.
+`data/approved-copy.json` retains the original approved copy. `data/testimonials.json` stores the eight complete replacement accounts and their exact attributions. `scripts/build.mjs` generates the HTML and original artwork. Styles are in `dist/styles.css`; consultation behavior is in `dist/main.js`. Rebuilding preserves the CSS, configuration, fonts, photograph and behavior.
 
-See [DESIGN.md](DESIGN.md) for the implemented concept, composition map, asset provenance and editorial concerns. The approved testimonial contains no outcome; its original attribution and broad follow-up claim are preserved verbatim for editorial review.
+Steve, Jillian and Randi appear in full. Michael, Rebecca, Janice, Robert and Jaime are already in the HTML inside one native `details` disclosure. It works with pointer, Enter and Space without JavaScript or fetching. Every supplied quote and attribution appears once, with no truncation.
+
+The refined canvas is brand-tinted near-black (#090a0e), with light reading text, restrained underlining and controlled lighting. Visible content gaps are 136px on desktop and 80px on phones. See [DESIGN.md](DESIGN.md) for the composition map, asset provenance and verification record.
