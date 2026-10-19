@@ -100,7 +100,7 @@ h1 .hero-question{color:var(--accent)}
 @media(max-width:390px){h1{font-size:46px;letter-spacing:-2.7px}.hero{padding-top:56px}.hero-art img{right:-440px;top:-20px}.action{gap:15px;padding-inline:21px;width:100%;font-size:14.5px}.section h2{font-size:34px}.approach h2{font-size:24px}.approach-lead .statement{font-size:37px}.closing h2{font-size:47px}.hero-support{font-size:16px}.hero-support p:first-child{font-size:16px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;scroll-behavior:auto!important}.action:hover{transform:none}}
 /* Settled render refinements: preserve shared reading anchors. */
-.approach::before{inset:-120px 0 -100px}
+.approach::before{display:none}
 .approach-lead{max-width:none}
 .approach h2{font-size:36px;letter-spacing:-1.4px}
 .last-pair{white-space:nowrap}
