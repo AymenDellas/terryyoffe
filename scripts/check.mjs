@@ -1,12 +1,14 @@
 import assert from 'node:assert/strict';
 import { readFile, stat } from 'node:fs/promises';
 
-const html = await readFile('dist/index.html', 'utf8');
-const css = await readFile('dist/styles.css', 'utf8');
+const generatedDocument = await readFile('.next/server/app/index.html', 'utf8');
+// Audit rendered HTML, excluding the serialized React payload in script blocks.
+const html = generatedDocument.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, '');
+const css = await readFile('app/globals.css', 'utf8');
 const copy = JSON.parse((await readFile('data/approved-copy.json', 'utf8')).replace(/^\uFEFF/, ''));
 const testimonials = JSON.parse((await readFile('data/testimonials.json', 'utf8')).replace(/^\uFEFF/, ''));
-const decode = s => s.replaceAll('&amp;', '&').replaceAll('&lt;', '<').replaceAll('&gt;', '>').replaceAll('&quot;', '"');
-const plain = s => decode(s.replace(/<\/?(?:span|strong)\b[^>]*>/g, '').replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
+const decode = s => s.replaceAll('&amp;', '&').replaceAll('&lt;', '<').replaceAll('&gt;', '>').replaceAll('&quot;', '"').replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCodePoint(parseInt(code, 16))).replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number(code)));
+const plain = s => decode(s.replace(/<!--[\s\S]*?-->/g, '').replace(/<\/?(?:span|strong)\b[^>]*>/g, '').replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
 const markup = [...html.matchAll(/<section\b[\s\S]*?<\/section>/g)].map(m => m[0]);
 assert.equal(markup.length, copy.length, 'Every approved section is present');
 assert.equal((html.match(/<h1\b/g) || []).length, 1, 'Exactly one h1');
@@ -28,14 +30,14 @@ for (const account of accounts) {
   const supplied = testimonials.find(t => t.id === account[1]);
   const quote = account[0].match(/<blockquote><p>([\s\S]*?)<\/p><\/blockquote>/)[1];
   const attribution = account[0].match(/<figcaption>([\s\S]*?)<\/figcaption>/)[1];
-  assert.equal(decode(quote.replace(/<\/?strong>/g, '')), supplied.quote, `Exact quotation punctuation: ${supplied.id}`);
+  assert.equal(decode(quote.replace(/<[^>]*>/g, '')), supplied.quote, `Exact quotation punctuation: ${supplied.id}`);
   assert.equal(plain(attribution), supplied.attribution, `Exact attribution: ${supplied.id}`);
 }
 const expandable = html.match(/<details class="more-testimonials">([\s\S]*?)<\/details>/)[1];
 assert.equal((expandable.match(/data-testimonial/g) || []).length, 5, 'Five native expandable accounts');
 assert.equal((html.match(/testimonial-featured/g) || []).length, 3, 'Three fully featured accounts');
-for (const asset of ['styles.css', 'main.js', 'config.js', 'assets/grain.svg', 'assets/hero-downlights.svg', 'assets/terry-yoffe.jpg', 'assets/terry-yoffe-hero-1200.jpg', 'assets/terry-yoffe-hero-1800.jpg', 'assets/terry-yoffe-hero-2400.jpg', 'assets/manrope-latin.woff2', 'assets/dm-sans-latin.woff2']) {
-  assert.ok((await stat('dist/' + asset)).size > 0, `Asset exists: ${asset}`);
+for (const asset of ['assets/grain.svg', 'assets/hero-downlights.svg', 'assets/terry-yoffe.jpg', 'assets/terry-yoffe-hero-1200.jpg', 'assets/terry-yoffe-hero-1800.jpg', 'assets/terry-yoffe-hero-2400.jpg', 'assets/manrope-latin.woff2', 'assets/dm-sans-latin.woff2']) {
+  assert.ok((await stat('public/' + asset)).size > 0, `Asset exists: ${asset}`);
 }
 assert.ok(!html.includes('unfold.svg'), 'Retired ribbon artwork is not displayed');
 const trustGroups = [...html.matchAll(/<ul class="trust-group"([^>]*)>([\s\S]*?)<\/ul>/g)];
@@ -48,7 +50,12 @@ assert.equal((trustGroups[0][2].match(/<li>/g) || []).length, 4, 'Four factual c
 assert.ok(html.includes('class="trust-window" tabindex="0"'), 'The trail is keyboard accessible');
 assert.ok(!html.includes('trust-toggle'), 'The requested pause button is removed');
 assert.ok(!/<nav\b|<form\b|<iframe\b/.test(html), 'No unrelated navigation or unconfigured data collection');
-for (const file of ['dist/main.js', 'dist/config.js']) new Function(await readFile(file, 'utf8'));
+const vercel = JSON.parse(await readFile('vercel.json', 'utf8'));
+const manifest = JSON.parse(await readFile('package.json', 'utf8'));
+assert.equal(vercel.framework, 'nextjs', 'Vercel uses the Next.js framework adapter');
+assert.equal(vercel.outputDirectory, '.next', 'Vercel does not mistake public assets for build output');
+assert.equal(manifest.scripts.build, 'next build', 'Production uses the actual Next.js compiler');
+assert.ok(html.includes('/_next/'), 'The generated document includes Next.js application assets');
 
 const luminance = color => {
   const rgb = color.match(/\w\w/g).map(v => parseInt(v, 16) / 255).map(v => v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4);

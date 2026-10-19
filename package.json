@@ -4,9 +4,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node scripts/build.mjs",
-    "dev": "node scripts/serve.mjs",
-    "start": "node scripts/serve.mjs",
+    "build": "next build",
+    "dev": "next dev --hostname 127.0.0.1 --port 4173",
+    "start": "next start --hostname 127.0.0.1 --port 4173",
     "check": "node scripts/check.mjs"
+  },
+  "engines": {
+    "node": "22.x"
+  },
+  "dependencies": {
+    "next": "16.4.2",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
   }
 }

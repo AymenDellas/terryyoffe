@@ -1,6 +1,12 @@
 # Terry Yoffe — current design contract
 
-This iteration follows the user's charcoal, spicy-orange and photo-led direction. Preview stays local at http://127.0.0.1:4173/. Keep the local preview server running. The user has authorized pushing source to https://github.com/AymenDellas/terryyoffe.git. Hosting metadata is historical; site deployment requires a new explicit user request.
+This Next.js App Router implementation preserves the user's charcoal, spicy-orange and photo-led direction. Preview stays local at http://127.0.0.1:4173/. Keep the local preview server running. The user has authorized pushing source to https://github.com/AymenDellas/terryyoffe.git and is deploying it with Vercel. The previous static build and ChatGPT hosting metadata have been retired.
+
+## Application structure and deployment
+
+The nine sections are server-rendered from the original JSON copy in app/page.jsx. Local styles live in app/globals.css, and photographs, artwork and fonts live under public/assets. Interactive consultation actions, the credential trail and the native testimonial disclosure are small client components. The trust trail cleans up observers, listeners and its animation frame on unmount, including development Strict Mode remounts.
+
+The app uses pinned Next.js 16.4.2 and React 19.3.1 dependencies, a committed npm lockfile and Node.js 22. The build command is next build. vercel.json selects the nextjs framework and .next output explicitly, overriding the previous dashboard expectation of a public output directory. public is the source asset directory, not the built app. No custom static generator or HTTP server is used.
 
 ## Composition and material
 
@@ -34,17 +40,18 @@ The section has two useful columns above 960px and one column below. The image c
 ## Assets and integrations
 
 - New hero source: user-supplied C:/Users/mimod/Downloads/TerryYoffe-0702.jpg, visually inspected before use. The original remains unchanged. Local JPEG derivatives at 1200, 1800 and 2400px retain its full content; the hero's CSS crop supplies the framing. The browser selects the proper derivative through srcset/sizes.
-- Biography source: the existing authentic photograph of Terry in conversation, originally inspected on her own website and visually verified. Its origin is https://trycoaching.com/wp-content/uploads/2025/12/TerryYoffe-1054-1280x853.jpg. It remains local at dist/assets/terry-yoffe.jpg.
+- Biography source: the existing authentic photograph of Terry in conversation, originally inspected on her own website and visually verified. Its origin is https://trycoaching.com/wp-content/uploads/2025/12/TerryYoffe-1054-1280x853.jpg. It remains local at public/assets/terry-yoffe.jpg.
 - The previous ribbon SVG and its hero/closing layers were removed. The continuous environment and all control colors use the current charcoal/orange system.
-- The original three consultation placements and wording remain. The booking code is unchanged. The destination in dist/config.js remains blank, and controls retain the existing explicit unconnected status without collecting or transmitting data.
+- The original three consultation placements and wording remain. The consultation behavior is a React client component. The destination in config/site.js remains blank, and controls retain the existing explicit unconnected status without collecting or transmitting data.
 - Steve, Jillian and Randi remain complete and featured. Michael, Rebecca, Janice, Robert and Jaime remain complete inside one native details disclosure. Quotations and corresponding attributions come verbatim from data/testimonials.json. No new results or broader promises were added.
 
 ## Verification
 
-- npm run build and npm run check verify nine sections, exact original copy plus the requested trust credentials, eight exact accounts, three consultation controls, duplicate-safe trust content and all local assets.
+- npm run build compiles the Next.js app. npm run check verifies its actual prerendered HTML: nine sections, exact original copy plus the requested trust credentials, eight exact accounts, three consultation controls, duplicate-safe trust content, local assets and the Vercel framework/output settings.
+- The conversion passed npm ci, an optimized Next.js production build and the content checks. The production server was inspected at 375, 768 and 1440px with no horizontal overflow. Both portraits and fonts loaded. Hover paused the trail, a mouse drag moved it 280px, arrow input moved it 100px, Enter/Space expanded and collapsed the full testimonials, and the blank consultation destination showed its existing explicit status. Development mode also processed an arrow press once (100px), confirming effect cleanup under Strict Mode. Neither browser session reported warnings or errors.
 - Inspected desktop and phone full-page renders and focused phone/tablet biography views. Geometry was checked at 320, 375, 768, 960, 1024 and 1440px. No horizontal overflow was present.
 - At 375px, the biography image measured 312×234px in a 312px column. At 768px it measured 680×510px inside a 681px column. At 1024px it measured about 385×482px in the two-column layout. All images were in static document flow.
 - Verified three equal 1563px desktop groups, rightward automatic scroll progress, a stable scroll position while hovered, exact 280px mouse dragging, dragging through a loop boundary and 100px arrow-key scrolling. No pause control or scrollbar remains. Native touch scrolling and the reduced-motion fallback are implemented; the browser testing surface does not emulate touch events or reduced-motion media preferences.
 - Contrast against a conservative warm-lit #3c3630 background: headings 10.78:1, body 8.95:1, metadata 6.09:1, light accent 7.30:1; dark text on the orange action/marker 7.07:1. Reading text remains separate from the bright photograph.
 - The overhead LED sources and downward beams were visually inspected at 375, 768 and 1440px viewport widths. No horizontal overflow was present. All three testimonial highlights and Steve's topic resolve to the requested orange rgb(247, 125, 67). The browser reported no warnings or errors.
-- Local captures are saved in the ignored artifacts directory. GitHub source publication is authorized for AymenDellas/terryyoffe; no hosted site deployment is part of this iteration.
+- Local captures are saved in the ignored artifacts directory. GitHub source publication is authorized for AymenDellas/terryyoffe; Vercel deploys from that repository.
